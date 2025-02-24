@@ -1,3 +1,11 @@
 @include("layout.header")
-
+@if(Auth::user())
+    @if(Auth::user()->nivel=="admin")
+        <h4>Admin</h4>
+    @elseif(Auth::user()->nivel=="doctor")
+        <h4>Doctor</h4>
+    @elseif(Auth::user()->nivel=="paciente")
+        @include("pacientes.dashboard_paciente")
+   @endif
+@endif
 @include("layout.footer")

@@ -1,5 +1,5 @@
 <li class="nav-item">
-    <a class="nav-link active" aria-current="page" href="#">Home</a>
+    <a class="nav-link active" aria-current="page" href="/users/{{Auth::user()->id}}">Editar perfil</a>
 </li>
 <li class="nav-item">
     <a class="nav-link" href="#">Features</a>
