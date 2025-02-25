@@ -1,4 +1,5 @@
 <div class="row collapse" id="collapseCuestionarios">
+    <h4>Cuestionarios asignados</h4>
     <table class="table">
         <thead>
         <tr>
@@ -11,7 +12,11 @@
                 <tr>
                     <td>{{$cuestionario->nombre}}</td>
                     <td>
-                        <a class="btn btn-primary" href="/contestar_cuestionario/{{$cuestionario->id}}">Ver</a>
+                        @if(Auth::user()->nivel=="doctor")
+                            <a class="btn btn-primary" href="/ver_cuestionario/{{$cuestionario->id}}/{{$paciente_id}}" target="_blank">Ver</a>
+                        @else
+                            <a class="btn btn-primary" href="/contestar_cuestionario/{{$cuestionario->id}}">Ver</a>
+                        @endif
                     </td>
                 </tr>
             @endforeach

@@ -1,16 +1,16 @@
 @include("layout.header")
-<h3 class="text-center">Datos del paciente {{ $perfil['full_name']??null }}</h3>
+<h3 class="text-center">Paciente: {{ $perfil['full_name']??null }}</h3>
 <p>
     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePerfil" aria-expanded="false" aria-controls="collapsePerfil">
-        Mostrar perfil
+        Mostrar expediente
     </button>
-    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePerfil" aria-expanded="false" aria-controls="collapsePerfil">
-        Mostrar diario de sesiones
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDiario" aria-expanded="false" aria-controls="collapseDiario">
+        Mostrar diario de pensamientos
     </button>
     <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePerfil" aria-expanded="false" aria-controls="collapsePerfil">
         Mostrar tareas
     </button>
-    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePerfil" aria-expanded="false" aria-controls="collapsePerfil">
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCuestionarios" aria-expanded="false" aria-controls="collapseCuestionarios">
         Mostrar cuestionarios
     </button>
 </p>
@@ -40,6 +40,8 @@
         <h4>No se ha generado perfil</h4>
     @endif
 </div>
+@include("pacientes.listas.diario")
+@include("pacientes.listas.cuestionarios")
 @include("layout.footer")
 <script>
 $(document).on("click", "input[type='radio'], input[type='checkbox'], input", function(){

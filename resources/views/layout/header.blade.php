@@ -14,7 +14,7 @@
 <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">Dashboard</a>
+            <a class="navbar-brand" href="/">Inicio</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -29,6 +29,13 @@
                         @else
                             @include("layout.tabs_paciente")
                         @endif
+                            <li class="nav-item">
+                                <a class="nav-link active" aria-current="page" href="/edit_user/{{Auth::user()->id}}">Usuario</a>
+                            </li>
+
+                            <li class="nav-item" style="position: absolute; right: 20px;">
+                                <a class="btn btn-danger" aria-current="page" href="/logout">Logout</a>
+                            </li>
                     @else
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/login">Login</a>
@@ -39,13 +46,4 @@
         </div>
     </nav>
 </header>
-@if (session('success'))
-    <div class="alert alert-success">
-        {{ session('success') }}
-    </div>
-@endif
-@if (session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
-@endif
+@include("layout.flash")

@@ -3,6 +3,13 @@
 
 <script src="{{ asset('js/functions.js') }}"></script>
 <script src="{{ asset('js/moment.min.js') }}"></script>
+<script>
+    $(document).ready(function(){
+        setTimeout(function () {
+            $('.flash').hide("slow");
+        }, 10000);
+    });
+</script>
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">

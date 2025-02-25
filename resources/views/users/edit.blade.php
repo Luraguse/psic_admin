@@ -1,48 +1,29 @@
 @include("layout.header")
-<form method="POST" action="{{ route('register') }}">
+<form method="POST" action="{{ route('users.update_user', ["id"=>request("id")]) }}">
     @csrf
     <div class="row">
         <div class="mb-3 col-md-6 col-sm-12">
             <label for="name" class="form-label">Nombre del usuario</label>
-            <input class="form-control" type="text" id="name" name="name" placeholder="Nombre del usuario" value="{{old("name")}}">
+            <input class="form-control" type="text" id="name" name="name" placeholder="Nombre del usuario" value="{{$user->name}}">
         </div>
         <div class="mb-3 col-md-6 col-sm-12">
             <label for="email" class="form-label">Correo electrónico</label>
-            <input class="form-control" type="email" id="email" name="email" placeholder="Correo electrónico" value="{{old("email")}}">
+            <input class="form-control" type="email" id="email" name="email" placeholder="Correo electrónico" value="{{$user->email}}">
         </div>
         <div class="mb-3 col-md-6 col-sm-12">
             <label for="password" class="form-label">Contraseña</label>
-            <input class="form-control" type="password" id="password" name="password" placeholder="Contraseña" value="{{old("password")}}">
+            <input class="form-control" type="password" id="password" name="password" placeholder="Contraseña">
         </div>
         <div class="mb-3 col-md-6 col-sm-12">
             <label for="password_confirmation" class="form-label">Confirmar contraseña</label>
-            <input class="form-control" type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirmar contraseña" value="{{old("password_confirmation")}}">
+            <input class="form-control" type="password" id="password_confirmation" name="password_confirmation" placeholder="Confirmar contraseña">
         </div>
         <div class="col-12">
             <p id="password_generado"></p>
             <button class="btn btn-success" id="generar_contrasena" type="button">Generar contraseña</button>
         </div>
-        @if(Auth::check())
-            <div class="mb-3 col-md-6 col-sm-12">
-                <label for="nivel-usuario" class="">Nivel del usuario</label>
-                <select name="nivel" id="nivel-usuario" class="form-select">
-                    @if ($count == 0)
-                        <option value="admin">Administrador</option>
-                    @else
-                        @if(Auth::user()->nivel == "admin")
-                            <option value="admin">Administrador</option>
-                            <option value="doctor" selected>Doctor</option>
-                            <option value="paciente">Paciente</option>
-                        @else(Auth::user()->nivel == "doctor")
-                            <option value="paciente">Paciente</option>
-                        @endif
-
-                    @endif
-                </select>
-            </div>
-        @endif
         <div class="mb-3">
-            <button class="btn btn-primary" type="submit">Registrar</button>
+            <button class="btn btn-primary" type="submit">Actualizar</button>
         </div>
     </div>
 </form>

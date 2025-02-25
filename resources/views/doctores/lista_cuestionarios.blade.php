@@ -15,7 +15,9 @@
                 <td>{{$cuestionario->nombre}}</td>
                 <td>
                     <a class="btn btn-primary" href="/cuestionario/{{$cuestionario->id}}">Ver</a>
-                    <a class="btn btn-success" href="/actualizar_cuestionario/{{$cuestionario->id}}">Editar</a>
+                    @if(!array_key_exists($cuestionario->id, $asignados))
+                        <a class="btn btn-success" href="/actualizar_cuestionario/{{$cuestionario->id}}">Editar</a>
+                    @endif
                 </td>
             </tr>
         @endforeach

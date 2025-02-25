@@ -16,7 +16,7 @@
                     <a class="btn btn-success" href="/paciente/{{$paciente["id"]}}">Ver</a>
                     <a class="btn btn-primary" href="/paciente/{{$paciente["id"]}}">Asignar tarea</a>
                     <a class="btn btn-warning" href="/paciente/{{$paciente["id"]}}">Asignar evaluación</a>
-                    <a class="btn btn-danger" href="/paciente/{{$paciente["id"]}}">Añadir a diario</a>
+                    <a class="btn btn-danger" href="{{route("users.edit_user", ["id"=>$paciente["id"]])}}">Editar</a>
                 </td>
             </tr>
         @endforeach
