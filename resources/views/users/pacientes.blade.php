@@ -14,7 +14,10 @@
             <td>{{ $paciente->name }}</td>
             <td>{{ $paciente->email }}</td>
             <td>{{ $lista_doctores[$paciente->doctor_id] ?? "Sin doctor asignado" }}</td>
-            <td><a type="button" class="btn btn-primary" href="/paciente/{{$paciente->id}}">Ver</a></td>
+            <td>
+                <a type="button" class="btn btn-primary" href="/paciente/{{$paciente->id}}">Ver</a>
+                <a type="button" class="btn btn-success" href="/edit_user/{{$paciente->id}}">Editar</a>
+            </td>
         </tr>
     @endforeach
     </tbody>

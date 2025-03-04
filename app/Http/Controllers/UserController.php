@@ -40,7 +40,7 @@ class UserController extends Controller
                 $cuestionarios_id[] = $cuestionario->cuestionario_id;
             }
             $cuestionarios = Cuestionario::all()->whereIn("id", $cuestionarios_id)->sortByDesc("created_at");
-            $diario_pensamientos = DiarioPensamiento::all()->where("paciente_id", "=", Auth::id())->sortByDesc("created_at");
+            $diario_pensamientos = DiarioPensamiento::with(["usuario", "comentarios"])->where("paciente_id", "=", Auth::id())->get()->sortByDesc("created_at");
             return view("dashboard", ["cuestionarios" => $cuestionarios, "diario_pensamientos" => $diario_pensamientos]);
         }
         return view('dashboard');
@@ -103,6 +103,10 @@ class UserController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
+            if(Auth::user()->nivel == "paciente" && !Auth::user()->doctor_id) {
+                Auth::logout();
+                return redirect('/login')->with('error', 'Este usuario aún no ha sido aprobado');
+            }
             return redirect()->intended('/');
         }
 
@@ -240,30 +244,23 @@ class UserController extends Controller
     {
 
         $paciente = User::all()->where("id", $id)->first();
+        if ($paciente == null) {
+            return redirect('/')->with('error', 'No se encontro el paciente.');
+        }
         if (Auth::user()->nivel == "paciente" && Auth::user()->id != $id) {
             return redirect("/")->with('error', 'No tienes permiso para ver este usuario.');
         }
         if (Auth::user()->nivel == "doctor" && $paciente->doctor_id != Auth::id()) {
             return redirect("/")->with('error', 'No tienes permiso para ver este usuario.');
         }
-        if ($paciente == null) {
-            return redirect('/')->with('error', 'No se encontro el paciente.');
-        }
         if ($paciente->nivel == "paciente") {
             $perfil = Perfil::all()->where("user_id", $paciente->id)->first();
             if ($perfil !== null) {
                 $perfil = json_decode($perfil->perfil, true);
-            } else {
-                return redirect('/')->with('error', 'El usuario no tiene un perfil registrado.');
             }
-            $diario_pensamientos = DiarioPensamiento::all()->where("paciente_id", $paciente->id)->sortByDesc("created_at");
-            $cuestionarios_paciente = CuestionarioPaciente::all()->where("paciente_id", "=", $paciente->id)->sortByDesc("created_at");
-            $cuestionarios_id = [];
-            foreach ($cuestionarios_paciente as $cuestionario) {
-                $cuestionarios_id[] = $cuestionario->cuestionario_id;
-            }
-            $cuestionarios = Cuestionario::all()->whereIn("id", $cuestionarios_id)->sortByDesc("created_at");
-            return view('users.perfilusuario', ["paciente" => $paciente, "perfil" => $perfil, "diario_pensamientos" => $diario_pensamientos, "cuestionarios" => $cuestionarios, "paciente_id"=>$paciente->id]);
+            $diario_pensamientos = DiarioPensamiento::with(["usuario", "comentarios"])->where("paciente_id", $paciente->id)->get()->sortByDesc("created_at");
+            $cuestionarios_paciente = CuestionarioPaciente::with("cuestionario")->where("paciente_id", "=", $paciente->id)->get()->sortByDesc("created_at");
+            return view('users.perfilusuario', ["paciente" => $paciente, "perfil" => $perfil, "diario_pensamientos" => $diario_pensamientos, "cuestionarios" => $cuestionarios_paciente, "paciente_id"=>$paciente->id]);
         } else {
             return redirect('/')->with('error', 'El usuario no es paciente.');
         }
@@ -490,8 +487,14 @@ class UserController extends Controller
 
     public function asignar_cuestionarios()
     {
-        $cuestionarios = Cuestionario::all()->where("doctor_id", Auth::id());
-        $pacientes = User::all()->where("doctor_id", Auth::id())->where("nivel", "paciente");
+        if(Auth::user()->nivel == "doctor") {
+            $cuestionarios = Cuestionario::all()->where("doctor_id", Auth::id());
+            $pacientes = User::all()->where("doctor_id", Auth::id())->where("nivel", "paciente");
+        } else if(Auth::user()->nivel=="admin") {
+            $cuestionarios = Cuestionario::all();
+            $pacientes = User::all()->where("nivel", "paciente");
+        }
+
         return view("doctores.asignar_cuestionarios", ["cuestionarios" => $cuestionarios, "pacientes" => $pacientes]);
     }
 
@@ -514,20 +517,28 @@ class UserController extends Controller
 
     public function contestar_cuestionario(int $id)
     {
-        $cuestionario = Cuestionario::all()->where("id", $id)->first();
-        $preguntas = CuestionarioPregunta::all()->where("cuestionario_id", $id);
-        $respuestas = CuestionarioPaciente::all()->where("cuestionario_id", $id)->where("paciente_id", Auth::id())->first();
-        $perfil = $respuestas->respuestas;
-        return view("pacientes.contestar_cuestionario", ["cuestionario" => $cuestionario, "preguntas" => $preguntas, "perfil" => $perfil]);
+        $cuestionario_paciente = CuestionarioPaciente::all()->where("id", $id)->first();
+        $cuestionario = Cuestionario::all()->where("id", $cuestionario_paciente->cuestionario_id)->first();
+        $preguntas = CuestionarioPregunta::all()->where("cuestionario_id", $cuestionario_paciente->cuestionario_id);
+        $perfil = $cuestionario_paciente->respuestas;
+        if(array_key_exists("user_id", $perfil)) {
+            $usuario_contesto  = User::all()->where("id", $perfil["user_id"])->first();
+        } else {
+            $usuario_contesto = null;
+        }
+        return view("pacientes.contestar_cuestionario", ["cuestionario" => $cuestionario, "preguntas" => $preguntas, "perfil" => $perfil,  "usuario_contesto" => $usuario_contesto]);
     }
 
     public function enviar_cuestionario(Request $request)
     {
-        $cuestionario_id = $request->all()["cuestionario_id"];
-        $cuestionario = CuestionarioPaciente::all()->where("cuestionario_id", $cuestionario_id)->first();
+        $cuestionario_paciente_id = $request->all()["cuestionario_paciente_id"];
+        $cuestionario = CuestionarioPaciente::all()->where("id", $cuestionario_paciente_id)->first();
+        $request->request->remove("_token");
+        $request->request->add(["user_id" => Auth::id()]);
+
         $cuestionario->respuestas = $request->all();
         $cuestionario->save();
-        return redirect()->route("users.contestar_cuestionario", ["id" => $cuestionario_id])->with("success", "Se actualizó el cuestionario");
+        return redirect()->route("users.contestar_cuestionario", ["id" => $cuestionario_paciente_id])->with("success", "Se actualizó el cuestionario");
     }
 
     public function ver_cuestionario(int $cuestionario_id, int $paciente_id) {

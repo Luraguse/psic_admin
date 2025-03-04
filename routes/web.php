@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DiarioPensamientoController;
-
+use App\Http\Controllers\ComentariosController;
 
 Route::get('/register', [UserController::class, 'showRegistrationForm'])->name('create_register');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -45,4 +45,6 @@ Route::middleware(["auth"])->group(function () {
     # Recursos
     Route::post("/entrada_diario", [DiarioPensamientoController::class, 'entrada_diario'])->name('diario_pensamiento.entrada_diario');
 
+    Route::post("/agregar_comentario_pensamiento/{pensamiento_id}", [ComentariosController::class, "agregar_comentario_pensamiento"])->name('agregar_comentario_pensamiento');
+    // Route::post("/update_user/{id}", [UserController::class, 'update_user'])->name('users.update_user');
 });

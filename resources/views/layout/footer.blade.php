@@ -3,6 +3,7 @@
 
 <script src="{{ asset('js/functions.js') }}"></script>
 <script src="{{ asset('js/moment.min.js') }}"></script>
+<script src="{{ asset('js/global.js') }}"></script>
 <script>
     $(document).ready(function(){
         setTimeout(function () {

@@ -7,7 +7,7 @@
             <select id="paciente_seleccionado" name="paciente_id" class="form-select" aria-label="Seleccionar un paciente">
                 <option disabled selected>Seleccionar un paciente</option>
                 @foreach($pacientes as $paciente)
-                    <option value="{{$paciente["id"]}}">{{$paciente["name"]}}</option>
+                    <option value="{{$paciente["id"]}}">{{$paciente["name"]}} - {{$paciente["email"]}}</option>
                 @endforeach
             </select>
         </div>

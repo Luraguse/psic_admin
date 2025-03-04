@@ -1,4 +1,4 @@
-<div class="row collapse" id="collapseCuestionarios">
+<div class="accordion-body" id="">
     <h4>Cuestionarios asignados</h4>
     <table class="table">
         <thead>
@@ -10,7 +10,7 @@
         <tbody>
             @foreach($cuestionarios as $cuestionario)
                 <tr>
-                    <td>{{$cuestionario->nombre}}</td>
+                    <td>{{$cuestionario->cuestionario->nombre}}</td>
                     <td>
                         @if(Auth::user()->nivel=="doctor")
                             <a class="btn btn-primary" href="/ver_cuestionario/{{$cuestionario->id}}/{{$paciente_id}}" target="_blank">Ver</a>

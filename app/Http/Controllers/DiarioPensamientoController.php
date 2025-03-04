@@ -25,11 +25,10 @@ class DiarioPensamientoController extends Controller
             $user_id = Auth::id();
             DiarioPensamiento::create(["texto" => $request->all()["texto"], "usuario_id" => $user_id, "paciente_id"=>$user_id]);
             return redirect("/")->with("success", "Se agregó la entrada de diario");
-        } else if ($user_nivel == "doctor") {
-            $user_id = Auth::id();
-            DiarioPensamiento::create(["texto" => $request->all()["texto"], "usuario_id" => $user_id, "paciente_id"=>$request->all()["paciente_id"]]);
-            return redirect()->route("users.paciente", ["id"=>$request->all()["paciente_id"]])->with("success", "Se agregó la entrada de diario");
         }
+        $user_id = Auth::id();
+        DiarioPensamiento::create(["texto" => $request->all()["texto"], "usuario_id" => $user_id, "paciente_id"=>$request->all()["paciente_id"]]);
+        return redirect()->route("users.paciente", ["id"=>$request->all()["paciente_id"]])->with("success", "Se agregó la entrada de diario");
 
     }
 }
