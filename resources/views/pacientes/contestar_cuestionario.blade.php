@@ -15,7 +15,7 @@
         @endforeach
     </ul>
     <div class="mb-3 col-md-12">
-        @if(is_null($usuario_contesto) || $usuario_contesto->nivel == "paciente")
+        @if((Auth::user()->nivel=="paciente" && !$cuestionario_paciente->terminado) || Auth::user()->nivel=="doctor" || Auth::user()->nivel=="admin")
             <button class="btn btn-primary" type="submit">Guardar</button>
         @endif
     </div>

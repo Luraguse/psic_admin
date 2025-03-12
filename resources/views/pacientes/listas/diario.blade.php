@@ -57,7 +57,7 @@
             </tr>
             @foreach($diario->comentarios as $comentario)
                 <tr>
-                    <td><small>{{ucfirst($comentario->usuario->nivel)}}</small></td>
+                    <td><small><i>{{$comentario->usuario->nivel}} comentó</i></small></td>
                     <td><i>{{$comentario->texto}}</i></td>
                     <td>
                         {{ \Carbon\Carbon::parse($comentario->created_at)->format("d-m-Y H:i:s") }}

@@ -34,6 +34,8 @@ class ComentariosController extends Controller
             }
         }
         Comentario::create(["texto" => $request->all()["texto"], "diario_pensamiento_id" => $id_pensamiento, "usuario_id" => $user_id]);
-        return redirect()->route("users.paciente", ["id"=>$pensamiento->paciente_id])->with("success", "Se agregó el comentario al diario");
+//        Go back to the previous route
+
+        return redirect()->back()->with("success", "Se agregó el comentario al diario");
     }
 }

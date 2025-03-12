@@ -6,6 +6,9 @@
     <thead>
         <tr>
             <th>Nombre</th>
+            @if(Auth::user()->nivel=="admin")
+                <th>Doctor</th>
+            @endif
             <th>Acciones</th>
         </tr>
     </thead>
@@ -13,6 +16,9 @@
         @foreach($cuestionarios as $cuestionario)
             <tr>
                 <td>{{$cuestionario->nombre}}</td>
+                @if(Auth::user()->nivel=="admin")
+                    <td>{{$cuestionario->doctor->name}}</td>
+                @endif
                 <td>
                     <a class="btn btn-primary" href="/cuestionario/{{$cuestionario->id}}">Ver</a>
                     @if(!array_key_exists($cuestionario->id, $asignados))

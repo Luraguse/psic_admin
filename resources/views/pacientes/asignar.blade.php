@@ -25,7 +25,32 @@
         </div>
     </div>
 </form>
-
+<div>
+    <h4>Pacientes asignados</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre paciente</th>
+                <th>Email paciente</th>
+                <th>Doctor asignado</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        @foreach($pacientes_asignados as $paciente_asignado)
+            <tr>
+                <td>{{$paciente_asignado->name}}</td>
+                <td>{{$paciente_asignado->email}}</td>
+                <td>{{$nombres_doctores[$paciente_asignado->doctor_id]}}</td>
+                <td>
+                    <form method="POST" action="{{route("users.quitar_doctor", ["id"=>$paciente_asignado->id])}}">
+                        @csrf
+                        <a class="btn btn-danger btn-sm quitar_doctor" href="">Quitar</a>
+                    </form>
+                </td>
+            </tr>
+        @endforeach
+    </table>
+</div>
 
 @include("layout.footer")
 <script>
@@ -35,5 +60,16 @@
         if(paciente && doctor) {
             $("#asignar_submit").removeClass("d-none")
         }
+    })
+    $(document).on("click", ".quitar_doctor", function(e){
+        e.preventDefault()
+        var confirmar = confirm("Se desasociará el doctor del paciente, ¿desea continuar?");
+
+        if(!confirmar) {
+
+            return false;
+        }
+        var form = $(this).parent();
+        form.submit();
     })
 </script>

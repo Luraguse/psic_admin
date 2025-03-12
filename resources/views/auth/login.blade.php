@@ -27,6 +27,6 @@
     <br>
     <br>
     <br>
-    <p><i><a href="{{route("create_register")}}">Registrarse</a></i></p>
+{{--    <p><i><a href="{{route("create_register")}}">Registrarse</a></i></p>--}}
 </form>
 </body>

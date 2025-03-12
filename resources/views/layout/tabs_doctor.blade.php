@@ -7,3 +7,6 @@
 <li class="nav-item">
     <a class="nav-link active" aria-current="page" href="/recursos">Recursos</a>
 </li>
+<li class="nav-item">
+    <a class="nav-link active" aria-current="page" href="/tareas">Tareas</a>
+</li>

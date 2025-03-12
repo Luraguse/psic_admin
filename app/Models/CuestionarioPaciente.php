@@ -9,7 +9,8 @@ class CuestionarioPaciente extends Model
     protected $fillable = [
         "cuestionario_id",
         "paciente_id",
-        "respuestas"
+        "respuestas",
+        "terminado"
     ];
 
     protected $table = "cuestionarios_pacientes";

@@ -10,4 +10,8 @@ class Cuestionario extends Model
         'nombre',
         "doctor_id",
     ];
+
+    public function doctor() {
+        return $this->belongsTo(User::class, "doctor_id", "id");
+    }
 }
