@@ -1,4 +1,5 @@
 @include("layout.header")
+<h4>Crear usuario</h4>
 <form method="POST" action="{{ route('register') }}">
     @csrf
     <div class="row">

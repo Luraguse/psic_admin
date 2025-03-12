@@ -1,5 +1,5 @@
 @include("layout.header")
-<h3>Lista de cuestionarios</h3>
+<h4>Lista de cuestionarios</h4>
 <a class="btn btn-primary" href="/agregar_cuestionario">Agregar cuestionario</a>
 <a class="btn btn-success" href="/asignar_cuestionarios">Asignar cuestionario</a>
 <table class="table">

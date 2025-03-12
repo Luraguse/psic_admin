@@ -1,4 +1,5 @@
 @include("layout.header")
+<h4>Lista de Recursos</h4>
 <div>
     <a class="btn btn-success" href="{{route('recursos.agregar_recurso')}}">Agregar</a>
     <a class="btn btn-primary" href="{{route('recursos.asignar')}}">Asignar recurso</a>

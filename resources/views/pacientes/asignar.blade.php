@@ -1,4 +1,5 @@
 @include("layout.header")
+<h4>Asignar Pacientes</h4>
 <form method="POST" action="{{ route('users.asignar_paciente') }}">
     @csrf
     <div class="row">

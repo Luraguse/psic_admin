@@ -1,4 +1,5 @@
 @include("layout.header")
+<h4>Lista de tareas</h4>
 <div>
     <a class="btn btn-primary" href="{{route("tareas.agregar")}}">Agregar tarea</a>
     <a class="btn btn-success" href="{{route("tareas.ligar")}}">Asignar tarea</a>

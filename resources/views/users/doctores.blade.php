@@ -1,4 +1,5 @@
 @include("layout.header")
+<h4>Doctores registrados</h4>
 <table class="table">
     <thead>
     <tr>
@@ -15,7 +16,7 @@
             <td>{{ $doctor->email }}</td>
             <td>{{ count($lista_pacientes[$doctor->id])??0 }}</td>
             <td>
-                <a type="button" class="btn btn-primary" href="/doctor/{{$doctor->id}}">Ver</a>
+                <a type="button" class="btn btn-primary" href="/doctor/{{$doctor->id}}">Pacientes</a>
                 <a type="button" class="btn btn-success" href="/edit_user/{{$doctor->id}}">Editar</a>
             </td>
         </tr>
