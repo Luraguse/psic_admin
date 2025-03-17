@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HistorialSesion;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Perfil;
@@ -42,8 +43,8 @@ class UserController extends Controller
             $diario_pensamientos = DiarioPensamiento::with(["usuario", "comentarios"])->where("paciente_id", "=", Auth::id())->get()->sortByDesc("created_at");
             $recursos_usuario = RecursoUsuario::with("recurso")->where("usuario_id", Auth::id())->get()->sortByDesc("created_at");
             $tareas_paciente = TareaPaciente::with(["tarea"])->where("paciente_id", Auth::id())->get()->sortByDesc("created_at");
-//            ["cuestionarios_paciente" => $cuestionarios_paciente, "diario_pensamientos" => $diario_pensamientos, "recursos_usuario" => $recursos_usuario]
-            return view("dashboard", compact("cuestionarios_paciente", "diario_pensamientos", "recursos_usuario", "tareas_paciente"));
+            $mensajes = HistorialSesion::all()->where("paciente_id", "=", Auth::id())->sortByDesc("created_at");
+            return view("dashboard", compact("cuestionarios_paciente", "diario_pensamientos", "recursos_usuario", "tareas_paciente", "mensajes"));
         }
         return view('dashboard');
     }
@@ -92,7 +93,7 @@ class UserController extends Controller
         if ($user_created->nivel == "admin" || $user_created->nivel == "doctor") {
             return redirect()->route("create_register")->with("success", "Usuario creado exitosamente");
         }
-        return redirect()->route("users.paciente", ["id"=>$user_created->id])->with("success", "Usuario creado exitosamente");
+        return redirect()->route("users.paciente", ["id" => $user_created->id])->with("success", "Usuario creado exitosamente");
     }
 
     public function showLoginForm()
@@ -286,11 +287,12 @@ class UserController extends Controller
                 $perfil = json_decode($perfil->perfil, true);
             }
             $diario_pensamientos = DiarioPensamiento::with(["usuario", "comentarios"])->where("paciente_id", $paciente->id)->get()->sortByDesc("created_at");
-            $cuestionarios_paciente = CuestionarioPaciente::with("cuestionario")->where("paciente_id", "=", $paciente->id)->get()->sortByDesc("created_at");
+            $cuestionarios_paciente = CuestionarioPaciente::with(["cuestionario", "evaluacion"])->where("paciente_id", "=", $paciente->id)->get()->sortByDesc("created_at");
             $recursos_usuario = RecursoUsuario::with("recurso")->where("usuario_id", $paciente->id)->get()->sortByDesc("created_at");
-            $tareas_paciente = TareaPaciente::with(["doctor", "tarea"])->where("paciente_id", $paciente->id)->get()->sortByDesc("created_at");
+            $tareas_paciente = TareaPaciente::with(["doctor", "tarea", "evaluacion"])->where("paciente_id", $paciente->id)->get()->sortByDesc("created_at");
+            $mensajes = HistorialSesion::all()->where("paciente_id", "=", $paciente->id)->sortByDesc("created_at");
             // ["paciente" => $paciente, "perfil" => $perfil, "diario_pensamientos" => $diario_pensamientos, "cuestionarios_paciente" => $cuestionarios_paciente, "paciente_id"=>$paciente->id, "recursos_usuario" => $recursos_usuario]
-            return view('users.perfilusuario', compact("paciente", "perfil", "diario_pensamientos", "cuestionarios_paciente", "recursos_usuario", "tareas_paciente"));
+            return view('users.perfilusuario', compact("paciente", "perfil", "diario_pensamientos", "cuestionarios_paciente", "recursos_usuario", "tareas_paciente", "mensajes"));
         } else {
             return redirect('/')->with('error', 'El usuario no es paciente.');
         }
@@ -551,6 +553,7 @@ class UserController extends Controller
         $paciente_id = $request->all()["paciente_id"];
         $cuestionario_id = $request->all()["cuestionario_id"];
         $existe = CuestionarioPaciente::all()->where("cuestionario_id", $cuestionario_id)->where("paciente_id", $paciente_id)->first();
+        $cuestionario = Cuestionario::all()->where("id", $cuestionario_id)->first();
         if ($existe) {
             return redirect()->route("users.asignar_cuestionarios")->with("error", "Ya tiene registrado este cuestionario el paciente");
         } else {
@@ -559,13 +562,18 @@ class UserController extends Controller
                 "paciente_id" => $paciente_id,
                 "respuestas" => []
             ]);
+            HistorialSesion::create([
+                "paciente_id" => $paciente_id,
+                "doctor_id" => Auth::id(),
+                "mensaje" => "Cuestionario " . $cuestionario->nombre . " asignado al paciente.",
+            ]);
             return redirect()->route("users.asignar_cuestionarios")->with("success", "Se asigno correctamente el cuestionario");
         }
     }
 
     public function contestar_cuestionario(int $id)
     {
-        $cuestionario_paciente = CuestionarioPaciente::all()->where("id", $id)->first();
+        $cuestionario_paciente = CuestionarioPaciente::with(["evaluacion"])->where("id", $id)->first();
         $cuestionario = Cuestionario::all()->where("id", $cuestionario_paciente->cuestionario_id)->first();
         $preguntas = CuestionarioPregunta::all()->where("cuestionario_id", $cuestionario_paciente->cuestionario_id);
         $perfil = $cuestionario_paciente->respuestas;
@@ -581,6 +589,7 @@ class UserController extends Controller
     {
         $cuestionario_paciente_id = $request->all()["cuestionario_paciente_id"];
         $cuestionario = CuestionarioPaciente::all()->where("id", $cuestionario_paciente_id)->first();
+        $row_cuestionario = Cuestionario::all()->where("id", $cuestionario->cuestionario_id)->first();
         $cantidad_preguntas = CuestionarioPregunta::all()->where("cuestionario_id", $cuestionario->cuestionario_id)->count();
         if (((count($request->all()) - 2) / $cantidad_preguntas) > 0.6) {
             $cuestionario->terminado = true;
@@ -590,6 +599,18 @@ class UserController extends Controller
 
         $cuestionario->respuestas = $request->all();
         $cuestionario->save();
+        if (Auth::user()->nivel == "paciente") {
+            HistorialSesion::create([
+                "paciente_id" => Auth::id(),
+                "mensaje" => "El paciente contestó cuestionario: " . $row_cuestionario->nombre,
+            ]);
+        } else {
+            HistorialSesion::create([
+                "paciente_id" => $cuestionario->paciente_id,
+                "doctor_id" => Auth::id(),
+                "mensaje" => "El doctor " . Auth::user()->name . " contestó cuestionario: " . $row_cuestionario->nombre,
+            ]);
+        }
         return redirect()->route("users.contestar_cuestionario", ["id" => $cuestionario_paciente_id])->with("success", "Se actualizó el cuestionario");
     }
 

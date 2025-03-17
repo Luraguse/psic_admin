@@ -6,6 +6,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\DiarioPensamientoController;
 use App\Http\Controllers\ComentariosController;
 use App\Http\Controllers\RecursosController;
+use App\Http\Controllers\EvalucionesController;
+use App\Http\Controllers\HistorialSesionesController;
 
 Route::get('/register', [UserController::class, 'showRegistrationForm'])->name('create_register');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -69,4 +71,8 @@ Route::middleware(["auth"])->group(function () {
     Route::get("/tarea/{id}", [TareasController::class, 'ver'])->name('tareas.ver');
     Route::post("/actualizar_tarea/{id}", [TareasController::class, 'actualizar'])->name('tareas.actualizar');
     Route::get("/descargar_tarea/{id}", [TareasController::class, 'descargar'])->name('tareas.descargar');
+
+    // Evaluaciones
+    Route::post("/agregar_evaluacion/{id}", [EvalucionesController::class, 'agregar_evaluacion'])->name('evaluar.agregar_evaluacion');
+
 });

@@ -10,6 +10,16 @@
             <div class="col-md-10 col-sm-9"><a class="btn btn-sm btn-primary" href="{{route("tareas.descargar", ["id"=>$tarea_paciente->id])}}" target="_blank">Descargar</a></div>
         @endif
     </div>
+    @if(!is_null($tarea_paciente->evaluacion))
+        <div class="mt-4">
+            <h4 class="text-center">Evaluación</h4>
+            <p>{{$tarea_paciente->evaluacion->evaluacion}}</p>
+        </div>
+    @else
+        @if($tarea_paciente->terminado && (Auth::user()->nivel == "doctor" || Auth::user()->nivel=="admin"))
+            @include("doctores.parts.agregar_evaluacion", ["tipo"=>"tarea"])
+        @endif
+    @endif
 @else
     <form method="POST" action="{{ route('tareas.actualizar', ["id"=>$tarea_paciente->id]) }}" enctype="multipart/form-data">
         @csrf
@@ -28,4 +38,5 @@
         </div>
     </form>
 @endif
+
 @include("layout.footer")

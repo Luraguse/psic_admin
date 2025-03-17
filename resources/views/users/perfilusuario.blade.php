@@ -24,6 +24,10 @@
                 data-bs-target="#collapseTareas" aria-expanded="false" aria-controls="collapseTareas">
             Tareas
         </button>
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseHistorial" aria-expanded="false" aria-controls="collapseHistorial">
+            Historial
+        </button>
     </div>
     <div class="accordion-item col-md-12">
         <div class="row accordion-collapse collapse" id="collapseExpediente" data-bs-parent="#accordionUsuario">
@@ -79,6 +83,11 @@
     <div class="accordion-item">
         <div id="collapseTareas" class="accordion-collapse collapse" data-bs-parent="#accordionUsuario">
             @include("pacientes.listas.tareas")
+        </div>
+    </div>
+    <div class="accordion-item">
+        <div id="collapseHistorial" class="accordion-collapse collapse" data-bs-parent="#accordionUsuario">
+            @include("pacientes.listas.historial")
         </div>
     </div>
 </div>

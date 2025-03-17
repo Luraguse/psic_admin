@@ -15,9 +15,24 @@
         @endforeach
     </ul>
     <div class="mb-3 col-md-12">
-        @if((Auth::user()->nivel=="paciente" && !$cuestionario_paciente->terminado) || Auth::user()->nivel=="doctor" || Auth::user()->nivel=="admin")
-            <button class="btn btn-primary" type="submit">Guardar</button>
+        @if((Auth::user()->nivel=="paciente" && !$cuestionario_paciente->terminado) || ((Auth::user()->nivel=="doctor" || Auth::user()->nivel=="admin") && !$cuestionario_paciente->evaluacion??null))
+            @if((Auth::user()->nivel == "doctor" || Auth::user()->nivel=="admin") && $cuestionario_paciente->terminado)
+                <button class="btn btn-danger" type="submit">Actualizar</button>
+            @else
+                <button class="btn btn-primary" type="submit">Guardar</button>
+            @endif
         @endif
     </div>
 </form>
+@if(!is_null($cuestionario_paciente->evaluacion))
+    <div class="mt-4">
+        <h4 class="text-center">Evaluación</h4>
+        <p>{{$cuestionario_paciente->evaluacion->evaluacion}}</p>
+    </div>
+@else
+    @if($cuestionario_paciente->terminado && (Auth::user()->nivel == "doctor" || Auth::user()->nivel=="admin"))
+        @include("doctores.parts.agregar_evaluacion", ["tipo"=>"cuestionario"])
+    @endif
+@endif
+
 @include("layout.footer")

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\File;
 use App\Models\User;
+use App\Models\HistorialSesion;
 
 class RecursosController extends Controller
 {
@@ -37,6 +38,10 @@ class RecursosController extends Controller
                 }
                 $recurso_usuario->terminado = true;
                 $recurso_usuario->save();
+                HistorialSesion::create([
+                    "paciente_id" => $recurso_usuario->usuario_id,
+                    "mensaje" => "El paciente descargó recurso: " . $recurso->nombre,
+                ]);
             }
             return response()->download(storage_path("app/public/uploads/recursos/" . $recurso->liga));
 
@@ -45,6 +50,10 @@ class RecursosController extends Controller
                 if($recurso_usuario->usuario_id == Auth::id()) {
                     $recurso_usuario->terminado = true;
                     $recurso_usuario->save();
+                    HistorialSesion::create([
+                        "paciente_id" => $recurso_usuario->usuario_id,
+                        "mensaje" => "El paciente visitó el recurso: " . $recurso->nombre,
+                    ]);
                 }
             }
             return redirect()->to($recurso->liga);
@@ -80,7 +89,13 @@ class RecursosController extends Controller
             'recurso_id.required' => 'El recurso es requerido',
             'usuario_id.required' => 'El usuario es requerido',
         ]);
+        $recurso = Recurso::all()->where("id", $request->all()["recurso_id"])->first();
         RecursoUsuario::create($request->all());
+        HistorialSesion::create([
+            "paciente_id" => $request->all()["usuario_id"],
+            "doctor_id" => Auth::id(),
+            "mensaje" => "Recurso " . $recurso->nombre . " asignado a paciente.",
+        ]);
         return redirect()->back()->with("success", "Recurso agregado correctamente");
     }
 

@@ -36,4 +36,9 @@
             @include("pacientes.listas.tareas")
         </div>
     </div>
+    <div class="accordion-item">
+        <div id="collapseHistorial" class="accordion-collapse collapse" data-bs-parent="#accordionUsuario">
+            @include("pacientes.listas.historial")
+        </div>
+    </div>
 </div>

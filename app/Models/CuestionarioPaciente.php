@@ -21,6 +21,9 @@ class CuestionarioPaciente extends Model
 
     public function cuestionario() {
         return $this->hasOne(Cuestionario::class, 'id', 'cuestionario_id')->select(["id", "nombre"]);
-//        return $this->hasOne(User::class, 'id', 'usuario_id')->select(["id", "name", "nivel"]);
+    }
+
+    public function evaluacion() {
+        return $this->hasOne(Evaluacion::class, "resource_id", "id")->where("tipo", "cuestionario");
     }
 }

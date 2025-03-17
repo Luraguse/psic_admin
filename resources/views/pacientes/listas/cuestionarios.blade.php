@@ -5,6 +5,7 @@
         <tr>
             <th>Nombre del cuestionario</th>
             <th>Terminado</th>
+            <th>Evaluado</th>
             <th>Acciones</th>
         </tr>
         </thead>
@@ -13,6 +14,7 @@
             <tr>
                 <td>{{$cuestionario_paciente->cuestionario->nombre}}</td>
                 <td>{{$cuestionario_paciente->terminado?"Si":"No"}}</td>
+                <td>{{$cuestionario_paciente->evaluacion?"Si":"No"}}</td>
                 <td>
                     <a class="btn btn-primary" href="/contestar_cuestionario/{{$cuestionario_paciente->id}}"
                        target="_blank">{{$cuestionario_paciente->terminado?"Ver":"Contestar"}}</a>

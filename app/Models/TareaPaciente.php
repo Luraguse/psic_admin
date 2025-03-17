@@ -27,4 +27,8 @@ class TareaPaciente extends Model
     public function tarea() {
         return $this->belongsTo(Tarea::class, "id_tarea", "id");
     }
+
+    public function evaluacion() {
+        return $this->hasOne(Evaluacion::class, "resource_id", "id")->where("tipo", "tarea");
+    }
 }
