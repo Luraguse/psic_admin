@@ -14,7 +14,13 @@
         <tr>
             <td>{{ $doctor->name }}</td>
             <td>{{ $doctor->email }}</td>
-            <td>{{ count($lista_pacientes[$doctor->id])??0 }}</td>
+            <td>
+                @if(array_key_exists($doctor->id, $lista_pacientes))
+                    {{ count($lista_pacientes[$doctor->id])??0 }}
+                @else
+                    0
+                @endif
+            </td>
             <td>
                 <a type="button" class="btn btn-primary" href="/doctor/{{$doctor->id}}">Pacientes</a>
                 <a type="button" class="btn btn-success" href="/edit_user/{{$doctor->id}}">Editar</a>
