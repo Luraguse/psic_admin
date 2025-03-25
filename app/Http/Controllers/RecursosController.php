@@ -29,10 +29,11 @@ class RecursosController extends Controller
 
     public function download(int $id)
     {
-        $recurso_usuario = RecursoUsuario::all()->where("id", $id)->first();
-        $recurso = Recurso::all()->where("id", $recurso_usuario->recurso_id)->first();
+        $recurso = Recurso::all()->where("id", $id)->first();
+
         if ($recurso->tipo == "documento") {
             if(Auth::user()->nivel=="paciente") {
+                $recurso_usuario = RecursoUsuario::all()->where("recurso_id", $id)->where("usuario_id", Auth::id());
                 if($recurso_usuario->usuario_id != Auth::id()) {
                     return redirect("/")->with("error", "No tiene permiso para acceder a esta pagina");
                 }
@@ -40,6 +41,7 @@ class RecursosController extends Controller
                 $recurso_usuario->save();
                 HistorialSesion::create([
                     "paciente_id" => $recurso_usuario->usuario_id,
+                    "doctor_id" => null,
                     "mensaje" => "El paciente descargó recurso: " . $recurso->nombre,
                 ]);
             }
@@ -47,11 +49,13 @@ class RecursosController extends Controller
 
         } else {
             if(Auth::user()->nivel=="paciente") {
+                $recurso_usuario = RecursoUsuario::all()->where("recurso_id", $id)->where("usuario_id", Auth::id());
                 if($recurso_usuario->usuario_id == Auth::id()) {
                     $recurso_usuario->terminado = true;
                     $recurso_usuario->save();
                     HistorialSesion::create([
                         "paciente_id" => $recurso_usuario->usuario_id,
+                        "doctor_id" => null,
                         "mensaje" => "El paciente visitó el recurso: " . $recurso->nombre,
                     ]);
                 }

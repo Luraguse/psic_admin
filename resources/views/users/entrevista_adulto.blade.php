@@ -274,22 +274,22 @@
         <div class="col-md-6 col-sm-12">
             <p>13. ¿Ha tenido problemas de memoria o dificultades para recordar eventos recientes?</p>
             <div class="form-check">
-                @if(array_key_exists("desmayos", $perfil) &&  $perfil["desmayos"] == "1")
-                    <input class="form-check-input" type="radio" name="desmayos" id="desmayos1" value="1" checked>
+                @if(array_key_exists("problemas_memoria", $perfil) &&  $perfil["problemas_memoria"] == "1")
+                    <input class="form-check-input" type="radio" name="problemas_memoria" id="problemas_memoria1" value="1" checked>
                 @else
-                    <input class="form-check-input" type="radio" name="desmayos" id="desmayos1" value="1">
+                    <input class="form-check-input" type="radio" name="problemas_memoria" id="problemas_memoria1" value="1">
                 @endif
-                <label class="form-check-label" for="desmayos1">
+                <label class="form-check-label" for="problemas_memoria1">
                     No
                 </label>
             </div>
             <div class="form-check">
-                @if(array_key_exists("desmayos", $perfil) &&  $perfil["desmayos"] == "2")
-                    <input class="form-check-input" type="radio" name="desmayos" id="desmayos2" value="2" checked>
+                @if(array_key_exists("problemas_memoria", $perfil) &&  $perfil["problemas_memoria"] == "2")
+                    <input class="form-check-input" type="radio" name="problemas_memoria" id="problemas_memoria2" value="2" checked>
                 @else
-                    <input class="form-check-input" type="radio" name="desmayos" id="desmayos2" value="2">
+                    <input class="form-check-input" type="radio" name="problemas_memoria" id="problemas_memoria2" value="2">
                 @endif
-                <label class="form-check-label" for="desmayos2">
+                <label class="form-check-label" for="problemas_memoria2">
                     Si
                 </label>
             </div>

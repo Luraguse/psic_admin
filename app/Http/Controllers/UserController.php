@@ -331,6 +331,7 @@ class UserController extends Controller
                 "full_name" => $request->all()["full_name"],
                 "fecha_nacimiento" => $request->all()["fecha_nacimiento"],
                 "edad" => $request->all()["edad"],
+                "guardado" => false,
             ]);
             $new_perfil = [
                 "user_id" => $request->all()["id"],
@@ -342,6 +343,7 @@ class UserController extends Controller
             }
         } else {
             // Remove _token and id from request variables
+            $request->request->add(["guardado" => true]);
             $perfil = json_encode($request->all());
             $perfil_existente->update(["perfil" => $perfil]);
             $perfil_existente->save();
@@ -489,6 +491,11 @@ class UserController extends Controller
                         continue;
                     }
                     if (strpos($key, "opcion") !== false) {
+                        if(!$val || trim($val) == "" ) {
+                            continue;
+                        } elseif (strlen($val) < 6) {
+                            return redirect()->back()->with("error", "Las opciones debe tener al menos 6 caracteres");
+                        }
                         $parts = explode("_", $key);
                         $posicion = $parts[1];
                         $opciones[$posicion] = $val;
@@ -503,7 +510,9 @@ class UserController extends Controller
                     "cuestionario_id" => $request->all()["id"],
                     "pregunta" => $pregunta,
                 ];
-
+                if(count($pregunta["opciones"]) < 2) {
+                    return redirect()->back()->with("error", "Se requieren al menos dos opciones");
+                }
             } else if ($tipo_pregunta == "opcion") {
                 $opciones = [];
                 foreach ($request->all() as $key => $val) {
@@ -511,6 +520,11 @@ class UserController extends Controller
                         continue;
                     }
                     if (strpos($key, "opcion") !== false) {
+                        if(!$val || trim($val) == "" ) {
+                            continue;
+                        } elseif (strlen($val) < 6) {
+                            return redirect()->back()->with("error", "Las opciones debe tener al menos 6 caracteres");
+                        }
                         $parts = explode("_", $key);
                         $posicion = $parts[1];
                         $opciones[$posicion] = $val;
@@ -525,8 +539,14 @@ class UserController extends Controller
                     "cuestionario_id" => $request->all()["id"],
                     "pregunta" => $pregunta,
                 ];
-            } else {
-
+                if(count($pregunta["opciones"]) < 2) {
+                    return redirect()->back()->with("error", "Se requieren al menos dos opciones");
+                }
+            }
+            if(!$pregunta["pregunta"] || trim($pregunta["pregunta"]) == "") {
+                return redirect()->back()->with("error", "No se puede quedar la pregunta en blanco");
+            } elseif (strlen($pregunta["pregunta"]) < 6) {
+                return redirect()->back()->with("error", "La pregunta debe tener al menos 6 caracteres");
             }
             $nueva_pregunta = CuestionarioPregunta::create($registro_pregunta);
             if ($nueva_pregunta) {
@@ -602,6 +622,7 @@ class UserController extends Controller
         if (Auth::user()->nivel == "paciente") {
             HistorialSesion::create([
                 "paciente_id" => Auth::id(),
+                "doctor_id" => null,
                 "mensaje" => "El paciente contestó cuestionario: " . $row_cuestionario->nombre,
             ]);
         } else {

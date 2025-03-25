@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->integer("paciente_id");
-            $table->integer("doctor_id")->nullable()->default(null);
             $table->text("mensaje");
         });
     }

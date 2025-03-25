@@ -27,15 +27,10 @@ class DiarioPensamientoController extends Controller
             DiarioPensamiento::create(["texto" => $request->all()["texto"], "usuario_id" => $user_id, "paciente_id"=>$user_id]);
             HistorialSesion::create([
                 "paciente_id" => $user_id,
+                "doctor_id" => null,
                 "mensaje" => "El paciente agregó entrada al diario de pensamientos.",
             ]);
             return redirect("/")->with("success", "Se agregó la entrada de diario");
-        } else {
-//            HistorialSesion::create([
-//                "paciente_id" => $request->all()["paciente_id"],
-//                "doctor_id" => Auth::id(),
-//                "mensaje" => "Doctor agregó entrada al diario de pensamientos.",
-//            ]);
         }
         $user_id = Auth::id();
         DiarioPensamiento::create(["texto" => $request->all()["texto"], "usuario_id" => $user_id, "paciente_id"=>$request->all()["paciente_id"]]);

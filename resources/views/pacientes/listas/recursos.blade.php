@@ -17,9 +17,9 @@
                 <td>{{$recurso_usuario->terminado?"Si":"No"}}</td>
                 <td>
                     @if($recurso_usuario->recurso->tipo=="documento")
-                        <a class="btn btn-sm btn-primary" href="{{route("recursos.download", ["id"=>$recurso_usuario->id])}}" target="_blank">Descargar</a>
+                        <a class="btn btn-sm btn-primary" href="{{route("recursos.download", ["id"=>$recurso_usuario->recurso->id])}}" target="_blank">Descargar</a>
                     @elseif($recurso_usuario->recurso->tipo=="video")
-                        <a class="btn btn-sm btn-danger" href="{{route("recursos.download", ["id"=>$recurso_usuario->id])}}" target="_blank">Ver</a>
+                        <a class="btn btn-sm btn-danger" href="{{route("recursos.download", ["id"=>$recurso_usuario->recurso->id])}}" target="_blank">Ver</a>
                     @endif
                 </td>
             </tr>

@@ -26,7 +26,13 @@
 
 
         <div class="mb-3 col-md-12">
-            <button class="btn btn-primary" type="submit">Actualizar</button>
+            @if(Auth::user()->nivel == "paciente")
+                @if($perfil && array_key_exists("guardado", $perfil) && $perfil["guardado"] == false)
+                    <button class="btn btn-primary" type="submit">Actualizar</button>
+                @endif
+            @elseif(Auth::user()->nivel=="admin" || Auth::user()->nivel == "doctor")
+                <button class="btn btn-primary" type="submit">Actualizar</button>
+            @endif
         </div>
     </div>
 </form>

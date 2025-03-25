@@ -126,6 +126,7 @@ class TareasController extends Controller
             if(Auth::user()->nivel=="paciente") {
                 HistorialSesion::create([
                     "paciente_id" => Auth::id(),
+                    "doctor_id" => null,
                     "mensaje" => "Paciente subió recurso de la tarea: " . $tarea_paciente->tarea->nombre,
                 ]);
             } else {
@@ -139,6 +140,7 @@ class TareasController extends Controller
             if(Auth::user()->nivel=="paciente") {
                 HistorialSesion::create([
                     "paciente_id" => Auth::id(),
+                    "doctor_id" => null,
                     "mensaje" => "Paciente contestó la tarea: " . $tarea_paciente->tarea->nombre,
                 ]);
             } else {
@@ -165,6 +167,7 @@ class TareasController extends Controller
             if(Auth::user()->nivel=="paciente") {
                 HistorialSesion::create([
                     "paciente_id" => $tarea_paciente->paciente_id,
+                    "doctor_id" => null,
                     "mensaje" => "Paciente descargó recurso " . $tarea_paciente->tarea->nombre . " " . $tarea_paciente->apellido,
                 ]);
             }
