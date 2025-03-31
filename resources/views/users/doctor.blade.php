@@ -11,9 +11,9 @@
     <tbody>
         @foreach($pacientes as $paciente)
             <tr>
-                <td>{{$paciente->name}}</td>
-                <td>{{$paciente->email}}</td>
-                <td><a class="btn btn-success" href="/paciente/{{$paciente->id}}">Ver</a></td>
+                <td>{{$paciente->paciente->name}}</td>
+                <td>{{$paciente->paciente->email}}</td>
+                <td><a class="btn btn-success" href="/paciente/{{$paciente->paciente->id}}">Ver</a></td>
             </tr>
         @endforeach
     </tbody>

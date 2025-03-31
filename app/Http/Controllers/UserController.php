@@ -104,9 +104,13 @@ class UserController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            if (Auth::user()->nivel == "paciente" && !Auth::user()->doctor_id) {
-                Auth::logout();
-                return redirect('/login')->with('error', 'Este usuario aún no ha sido aprobado');
+            if (Auth::user()->nivel == "paciente") {
+                $paciente_doctor = PacienteDoctor::where("paciente_id", "=", Auth::id())->get()->count();
+                if ($paciente_doctor == 0) {
+                    Auth::logout();
+                    return redirect('/login')->with('error', 'Este usuario aún no ha sido aprobado');
+                }
+
             }
             return redirect()->intended('/');
         }
@@ -136,7 +140,8 @@ class UserController extends Controller
             if ($user->nivel == "admin" or ($user->nivel == "doctor" and $user->id != Auth::id())) {
                 return redirect('/')->with("error", "No tienes permiso para acceder a este recurso");
             }
-            if ($user->nivel == "paciente" && $user->doctor_id != Auth::id()) {
+            $user_doctor_id = PacienteDoctor::where("paciente_id", $user->id)->where("doctor_id", "=", Auth::id())->get()->count();
+            if ($user->nivel == "paciente" && $user_doctor_id == 0) {
                 return redirect('/')->with("error", "No tienes permiso para acceder a este recurso");
             }
         }
@@ -155,7 +160,8 @@ class UserController extends Controller
             if ($user->nivel == "admin" or ($user->nivel == "doctor" and $user->id != Auth::id())) {
                 return redirect("/")->with("error", "No tienes permiso para acceder a este recurso");
             }
-            if ($user->nivel == "paciente" && $user->doctor_id != Auth::id()) {
+            $user_doctor_id = PacienteDoctor::where("paciente_id", $user->id)->where("doctor_id", "=", Auth::id())->get()->count();
+            if ($user->nivel == "paciente" && $user_doctor_id == 0) {
                 return redirect('/')->with("error", "No tienes permiso para acceder a este recurso");
             }
         }
@@ -217,9 +223,7 @@ class UserController extends Controller
                 $info_paciente = json_decode($info_paciente->perfil, true);
             }
             $doctor_asignado = null;
-            if (!$user->doctor_id) {
-                $lista_doctores = null;
-            }
+
             return view('users.view', ["user" => $user, "perfil" => $info_paciente, "doctor_asignado" => $doctor_asignado]);
         }
         return view('users.view', ["user" => $user]);
@@ -259,13 +263,10 @@ class UserController extends Controller
 
     public function doctores()
     {
-        $pacientes = User::all()->where('nivel', 'paciente');
+        $pacientes = PacienteDoctor::with(["doctor", "paciente"])->get();
         $doctores = User::all()->where('nivel', 'doctor');
         $lista_pacientes = [];
         foreach ($pacientes as $paciente) {
-            if (!$paciente->doctor_id) {
-                continue;
-            }
             if (!array_key_exists($paciente->doctor_id, $lista_pacientes)) {
                 $lista_pacientes[$paciente->doctor_id] = [];
             }
@@ -276,7 +277,7 @@ class UserController extends Controller
 
     public function doctor(int $id)
     {
-        $pacientes = User::all()->where('nivel', 'paciente')->where("doctor_id", $id);
+        $pacientes = PacienteDoctor::where("doctor_id", $id)->get();
         return view("users.doctor", ["pacientes" => $pacientes]);
     }
 
@@ -325,19 +326,19 @@ class UserController extends Controller
         }
     }
 
-    public function doctors(Request $request)
-    {
-        $doctors = User::all()->where('nivel', 'doctor');
-        # check if json response or html
-        $lista_doctores = [];
-        foreach ($doctors as $doctor) {
-            $lista_doctores[$doctor->id] = $doctor->name;
-        }
-        if ($request->ajax()) {
-            return response()->json(["doctors" => $lista_doctores]);
-        }
-        return view('users.doctors', ["doctors" => $lista_doctores]);
-    }
+//    public function doctors(Request $request)
+//    {
+//        $doctors = User::all()->where('nivel', 'doctor');
+//        # check if json response or html
+//        $lista_doctores = [];
+//        foreach ($doctors as $doctor) {
+//            $lista_doctores[$doctor->id] = $doctor->name;
+//        }
+//        if ($request->ajax()) {
+//            return response()->json(["doctors" => $lista_doctores]);
+//        }
+//        return view('users.doctors', ["doctors" => $lista_doctores]);
+//    }
 
     public function update(Request $request)
     {
@@ -403,9 +404,8 @@ class UserController extends Controller
 
     public function quitar_doctor(int $id)
     {
-        $paciente = User::all()->findOrFail($id);
-        $paciente->doctor_id = null;
-        $paciente->save();
+        $paciente = PacienteDoctor::where("paciente_id", $id)->first();
+        $paciente->delete();
         return redirect()->route("users.asignar_pacientes")->with("success", "Se desasoció el doctor correctamente");
     }
 
@@ -429,20 +429,7 @@ class UserController extends Controller
             return redirect()->back()->with("error", "Ya está registardo el paciente con el doctor");
         }
         return redirect()->back()->with("error", "Ocurrió un error al intentar asignar al paciente");
-//        $paciente = User::all()->where('id', $request->all()["paciente_id"])->where("nivel", "paciente")->first();
-//        if ($paciente == null) {
-////            return view("users.asignar_pacientes")->with("error", "El paciente no existe");
-//            return redirect()->route("users.asignar_pacientes")->with("error", "El paciente no existe");
-//        }
-//        $doctor = User::all()->where('id', $request->all()["doctor_id"])->where("nivel", "doctor")->first();
-//        if ($doctor == null) {
-////            return view("users.asignar_pacientes")->with("error", "El doctor no existe");
-//            return redirect()->route("users.asignar_pacientes")->with("error", "El doctor no existe");
-//        }
-//        $paciente->doctor_id = $request->all()["doctor_id"];
-//        $paciente->save();
-////        return view("users.asignar_pacientes")->with("success", "Paciente actualizado exitosamente");
-//        return redirect()->route("users.asignar_pacientes")->with("success", "Paciente actualizado exitosamente");
+
     }
 
     public function tareas_doctor()
