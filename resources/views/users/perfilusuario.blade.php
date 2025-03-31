@@ -60,7 +60,7 @@
                     <h4>No se ha generado perfil</h4>
                 @endif
                 @if(Auth::user()->nivel=="doctor" || Auth::user()->nivel=="admin")
-                    <a class="btn btn-sm btn-primary" href="{{route("users.view", ["id"=>$paciente->id])}}">Actualizar perfil</a>
+                    <a class="btn btn-sm btn-primary" href="{{route("users.view", ["id"=>$paciente->paciente_id])}}">Actualizar perfil</a>
                 @endif
             </div>
         </div>

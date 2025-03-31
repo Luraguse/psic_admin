@@ -13,6 +13,7 @@ use App\Models\DiarioPensamiento;
 use App\Models\RecursoUsuario;
 use App\Models\Tarea;
 use App\Models\TareaPaciente;
+use App\Models\PacienteDoctor;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -208,8 +209,11 @@ class UserController extends Controller
             if (Auth::user()->nivel == "paciente" && Auth::user()->id != $id) {
                 return redirect("/")->with('error', 'No tienes permiso para ver este usuario.');
             }
-            if (Auth::user()->nivel == "doctor" && $user->doctor_id != Auth::id()) {
-                return redirect("/")->with('error', 'No tienes permiso para ver este usuario.');
+            if (Auth::user()->nivel == "doctor") {
+                $paciente_asignado = PacienteDoctor::where("doctor_id", Auth::id())->where("paciente_id", $id)->count();
+                if ($paciente_asignado == 0) {
+                    return redirect("/")->with('error', 'No tienes permiso para ver este usuario.');
+                }
             }
             $info_paciente = Perfil::all()->where("user_id", $user->id)->first();
             if ($info_paciente !== null) {
@@ -226,13 +230,32 @@ class UserController extends Controller
 
     public function pacientes()
     {
-        $pacientes = User::all()->where('nivel', 'paciente');
-        $doctores = User::all()->where('nivel', 'doctor');
-        $lista_doctores = [];
-        foreach ($doctores as $doctor) {
-            $lista_doctores[$doctor->id] = $doctor->name;
+        $lista_pacientes = [];
+        if(Auth::user()->nivel == "admin") {
+            $pacientes = PacienteDoctor::get()->pluck("paciente_id")->toArray();
+            $pacientes_doctores = PacienteDoctor::with(["doctor", "paciente"])->whereIn("paciente_id", $pacientes)->get();
+            foreach($pacientes_doctores as $paciente) {
+                if(!array_key_exists($paciente->paciente_id, $lista_pacientes)) {
+                    $lista_pacientes[$paciente->paciente_id] = ["paciente" => $paciente->paciente, "doctores" => [$paciente->doctor]];
+                } else {
+                    $lista_pacientes[$paciente->paciente_id]["doctores"][] = $paciente->doctor;
+                }
+            }
+        } elseif(Auth::user()->nivel == "doctor") {
+            $pacientes = PacienteDoctor::where("doctor_id", Auth::id())->get()->pluck("paciente_id")->toArray();
+            $pacientes_doctores = PacienteDoctor::with(["doctor", "paciente"])->whereIn("paciente_id", $pacientes)->get();
+            foreach($pacientes_doctores as $paciente) {
+                if(!array_key_exists($paciente->paciente_id, $lista_pacientes)) {
+                    $lista_pacientes[$paciente->paciente_id] = ["paciente" => $paciente->paciente, "doctores" => [$paciente->doctor]];
+                } else {
+                    $lista_pacientes[$paciente->paciente_id]["doctores"][] = $paciente->doctor;
+                }
+            }
+
+        } else {
+            return redirect('/')->with('error', 'No tienes permiso para acceder a este recurso');
         }
-        return view('users.pacientes', ["pacientes" => $pacientes, 'lista_doctores' => $lista_doctores]);
+        return view('users.pacientes', ["lista_pacientes" => $lista_pacientes]);
     }
 
     public function doctores()
@@ -264,14 +287,13 @@ class UserController extends Controller
         if ($doctor->nivel != "doctor") {
             return redirect("/")->with('error', 'No tienes permiso para ver esta sección.');
         }
-        $pacientes = User::all()->where('nivel', 'paciente')->where('doctor_id', $doctor->id);
+        $pacientes = PacienteDoctor::with(["paciente", "doctor"])->where("doctor_id", Auth::id())->get();
         return view('doctores.lista_pacientes', ["pacientes" => $pacientes]);
     }
 
     public function paciente(int $id)
     {
-
-        $paciente = User::all()->where("id", $id)->first();
+        $paciente = PacienteDoctor::with(["paciente", "doctor"])->where("paciente_id", $id)->where("doctor_id", Auth::id())->first();
         if ($paciente == null) {
             return redirect('/')->with('error', 'No se encontro el paciente.');
         }
@@ -281,16 +303,16 @@ class UserController extends Controller
         if (Auth::user()->nivel == "doctor" && $paciente->doctor_id != Auth::id()) {
             return redirect("/")->with('error', 'No tienes permiso para ver este usuario.');
         }
-        if ($paciente->nivel == "paciente") {
-            $perfil = Perfil::all()->where("user_id", $paciente->id)->first();
+        if ($paciente->paciente->nivel == "paciente") {
+            $perfil = Perfil::all()->where("user_id", $paciente->paciente_id)->first();
             if ($perfil !== null) {
                 $perfil = json_decode($perfil->perfil, true);
             }
-            $diario_pensamientos = DiarioPensamiento::with(["usuario", "comentarios"])->where("paciente_id", $paciente->id)->get()->sortByDesc("created_at");
-            $cuestionarios_paciente = CuestionarioPaciente::with(["cuestionario", "evaluacion"])->where("paciente_id", "=", $paciente->id)->get()->sortByDesc("created_at");
-            $recursos_usuario = RecursoUsuario::with("recurso")->where("usuario_id", $paciente->id)->get()->sortByDesc("created_at");
-            $tareas_paciente = TareaPaciente::with(["doctor", "tarea", "evaluacion"])->where("paciente_id", $paciente->id)->get()->sortByDesc("created_at");
-            $mensajes = HistorialSesion::all()->where("paciente_id", "=", $paciente->id)->sortByDesc("created_at");
+            $diario_pensamientos = DiarioPensamiento::with(["usuario", "comentarios"])->where("paciente_id", $paciente->paciente->id)->get()->sortByDesc("created_at");
+            $cuestionarios_paciente = CuestionarioPaciente::with(["cuestionario", "evaluacion"])->where("paciente_id", "=", $paciente->paciente->id)->get()->sortByDesc("created_at");
+            $recursos_usuario = RecursoUsuario::with("recurso")->where("usuario_id", $paciente->paciente->id)->get()->sortByDesc("created_at");
+            $tareas_paciente = TareaPaciente::with(["doctor", "tarea", "evaluacion"])->where("paciente_id", $paciente->paciente->id)->get()->sortByDesc("created_at");
+            $mensajes = HistorialSesion::all()->where("paciente_id", "=", $paciente->paciente->id)->sortByDesc("created_at");
             // ["paciente" => $paciente, "perfil" => $perfil, "diario_pensamientos" => $diario_pensamientos, "cuestionarios_paciente" => $cuestionarios_paciente, "paciente_id"=>$paciente->id, "recursos_usuario" => $recursos_usuario]
             return view('users.perfilusuario', compact("paciente", "perfil", "diario_pensamientos", "cuestionarios_paciente", "recursos_usuario", "tareas_paciente", "mensajes"));
         } else {
@@ -358,14 +380,20 @@ class UserController extends Controller
         if (Auth::user()->nivel != "admin") {
             return redirect('/')->with('error', 'No tienes permiso para acceder a esta seccion');
         }
-        $pacientes = User::all()->where('nivel', 'paciente')->where('doctor_id', 'is', null);
+        $lista_pacientes = [];
         $doctores = User::all()->where('nivel', 'doctor');
-        $pacientes_asignados = User::all()->where('nivel', 'paciente')->whereNotNull('doctor_id');
-        $nombres_doctores = [];
-        foreach ($doctores as $doctor) {
-            $nombres_doctores[$doctor->id] = $doctor->name;
+
+        $pacientes = User::all()->where('nivel', 'paciente');
+        $pacientes_ids = PacienteDoctor::get()->pluck("paciente_id")->toArray();
+        $pacientes_doctores = PacienteDoctor::with(["doctor", "paciente"])->whereIn("paciente_id", $pacientes_ids)->get();
+        foreach($pacientes_doctores as $paciente) {
+            if(!array_key_exists($paciente->paciente_id, $lista_pacientes)) {
+                $lista_pacientes[$paciente->paciente_id] = ["paciente" => $paciente->paciente, "doctores" => [$paciente->doctor]];
+            } else {
+                $lista_pacientes[$paciente->paciente_id]["doctores"][] = $paciente->doctor;
+            }
         }
-        return view('pacientes.asignar', ["pacientes" => $pacientes, 'doctores' => $doctores, 'pacientes_asignados' => $pacientes_asignados, 'nombres_doctores' => $nombres_doctores]);
+        return view('pacientes.asignar', compact('lista_pacientes', 'doctores', 'pacientes'));
     }
 
     public function quitar_doctor(int $id)
@@ -381,21 +409,35 @@ class UserController extends Controller
         if (Auth::user()->nivel != "admin") {
             return redirect('/')->with('error', 'No tienes permiso para acceder a esta seccion');
         }
-
-        $paciente = User::all()->where('id', $request->all()["paciente_id"])->where("nivel", "paciente")->first();
-        if ($paciente == null) {
-//            return view("users.asignar_pacientes")->with("error", "El paciente no existe");
-            return redirect()->route("users.asignar_pacientes")->with("error", "El paciente no existe");
+        // Validate that paciente_id and doctor_id combination doesn't exists
+        $paciente_doctor = PacienteDoctor::all()->where("paciente_id", $request->all()["paciente_id"])->where("doctor_id", $request->all()["doctor_id"])->count();
+        if ($paciente_doctor == 0) {
+            $pd = [
+                "paciente_id" => $request->all()["paciente_id"],
+                "doctor_id" => $request->all()["doctor_id"],
+            ];
+            $new_paciente_doctor = PacienteDoctor::create($pd);
+            if ($new_paciente_doctor) {
+                return redirect()->back()->with("success", "Se asignó el paciente con éxito");
+            }
+        } else {
+            return redirect()->back()->with("error", "Ya está registardo el paciente con el doctor");
         }
-        $doctor = User::all()->where('id', $request->all()["doctor_id"])->where("nivel", "doctor")->first();
-        if ($doctor == null) {
-//            return view("users.asignar_pacientes")->with("error", "El doctor no existe");
-            return redirect()->route("users.asignar_pacientes")->with("error", "El doctor no existe");
-        }
-        $paciente->doctor_id = $request->all()["doctor_id"];
-        $paciente->save();
-//        return view("users.asignar_pacientes")->with("success", "Paciente actualizado exitosamente");
-        return redirect()->route("users.asignar_pacientes")->with("success", "Paciente actualizado exitosamente");
+        return redirect()->back()->with("error", "Ocurrió un error al intentar asignar al paciente");
+//        $paciente = User::all()->where('id', $request->all()["paciente_id"])->where("nivel", "paciente")->first();
+//        if ($paciente == null) {
+////            return view("users.asignar_pacientes")->with("error", "El paciente no existe");
+//            return redirect()->route("users.asignar_pacientes")->with("error", "El paciente no existe");
+//        }
+//        $doctor = User::all()->where('id', $request->all()["doctor_id"])->where("nivel", "doctor")->first();
+//        if ($doctor == null) {
+////            return view("users.asignar_pacientes")->with("error", "El doctor no existe");
+//            return redirect()->route("users.asignar_pacientes")->with("error", "El doctor no existe");
+//        }
+//        $paciente->doctor_id = $request->all()["doctor_id"];
+//        $paciente->save();
+////        return view("users.asignar_pacientes")->with("success", "Paciente actualizado exitosamente");
+//        return redirect()->route("users.asignar_pacientes")->with("success", "Paciente actualizado exitosamente");
     }
 
     public function tareas_doctor()
@@ -542,6 +584,8 @@ class UserController extends Controller
                 if(count($pregunta["opciones"]) < 2) {
                     return redirect()->back()->with("error", "Se requieren al menos dos opciones");
                 }
+            } else {
+                return redirect()->back()->with("error", "No se agregó una pregunta");
             }
             if(!$pregunta["pregunta"] || trim($pregunta["pregunta"]) == "") {
                 return redirect()->back()->with("error", "No se puede quedar la pregunta en blanco");
@@ -559,10 +603,10 @@ class UserController extends Controller
     {
         if (Auth::user()->nivel == "doctor") {
             $cuestionarios = Cuestionario::all()->where("doctor_id", Auth::id());
-            $pacientes = User::all()->where("doctor_id", Auth::id())->where("nivel", "paciente");
+            $pacientes = PacienteDoctor::with(["paciente"])->where("doctor_id", Auth::id())->get();
         } else if (Auth::user()->nivel == "admin") {
             $cuestionarios = Cuestionario::all();
-            $pacientes = User::all()->where("nivel", "paciente");
+            $pacientes = PacienteDoctor::with(["paciente", "doctor"])->get();
         }
 
         return view("doctores.asignar_cuestionarios", ["cuestionarios" => $cuestionarios, "pacientes" => $pacientes]);

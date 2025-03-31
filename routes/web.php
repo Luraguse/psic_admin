@@ -8,6 +8,7 @@ use App\Http\Controllers\ComentariosController;
 use App\Http\Controllers\RecursosController;
 use App\Http\Controllers\EvalucionesController;
 use App\Http\Controllers\HistorialSesionesController;
+use App\Http\Controllers\BitacorasController;
 
 Route::get('/register', [UserController::class, 'showRegistrationForm'])->name('create_register');
 Route::post('/register', [UserController::class, 'register'])->name('register');
@@ -75,4 +76,8 @@ Route::middleware(["auth"])->group(function () {
     // Evaluaciones
     Route::post("/agregar_evaluacion/{id}", [EvalucionesController::class, 'agregar_evaluacion'])->name('evaluar.agregar_evaluacion');
 
+    // Bitacora doctor
+    Route::get("/bitacora/{id}", [BitacorasController::class, "entradas"])->name('bitacora.entradas');
+    Route::post("/bitacora_entrada/{id}", [BitacorasController::class, "crear_entrada"])->name('bitacora.crear_entrada');
+    Route::post("/comentar_entrada/{id}", [BitacorasController::class, "comentar_entrada"])->name('bitacora.comentar_entrada');
 });

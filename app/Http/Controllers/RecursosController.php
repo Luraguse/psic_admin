@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PacienteDoctor;
 use App\Models\Recurso;
 use App\Models\RecursoUsuario;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class RecursosController extends Controller
 
         if ($recurso->tipo == "documento") {
             if(Auth::user()->nivel=="paciente") {
-                $recurso_usuario = RecursoUsuario::all()->where("recurso_id", $id)->where("usuario_id", Auth::id());
+                $recurso_usuario = RecursoUsuario::all()->where("recurso_id", $id)->where("usuario_id", Auth::id())->first();
                 if($recurso_usuario->usuario_id != Auth::id()) {
                     return redirect("/")->with("error", "No tiene permiso para acceder a esta pagina");
                 }
@@ -68,10 +69,10 @@ class RecursosController extends Controller
     public function asignar()
     {
         if (Auth::user()->nivel == "admin") {
-            $pacientes = User::all()->whereNotNull("doctor_id")->sortByDesc("created");
+            $pacientes = PacienteDoctor::with(["paciente", "doctor"])->get();
             $recursos = Recurso::all()->sortByDesc("created");
         } elseif (Auth::user()->nivel == "doctor") {
-            $pacientes = User::all()->where('nivel', 'paciente')->where("doctor_id", Auth::id())->sortByDesc("created");
+            $pacientes = PacienteDoctor::with(["paciente"])->where("doctor_id", Auth::id())->get();
             $recursos = Recurso::all()->where("usuario_id", Auth::id())->sortByDesc("created");
         } else {
             return redirect()->back()->with("error", "No tiene permiso para acceder a esta pagina");

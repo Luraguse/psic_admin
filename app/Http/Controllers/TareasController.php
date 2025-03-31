@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PacienteDoctor;
 use App\Models\TareaPaciente;
 use Illuminate\Http\Request;
 use App\Models\Tarea;
@@ -60,10 +61,10 @@ class TareasController extends Controller
     {
         if (Auth::user()->nivel == 'admin') {
             $tareas = Tarea::with("doctor")->get();
-            $pacientes = User::all()->where("nivel", "paciente");
+            $pacientes = PacienteDoctor::with(["paciente", "doctor"])->get();
         } elseif (Auth::user()->nivel == 'doctor') {
             $tareas = Tarea::with("doctor")->where("id_doctor", Auth::id())->get();
-            $pacientes = User::all()->where("nivel", "paciente")->where("doctor_id", Auth::id());
+            $pacientes = PacienteDoctor::with(["paciente"])->where("doctor_id", Auth::id())->get();
         } else {
             return redirect("/")->with("error", "No tiene permiso para acceder a esta pagina");
         }

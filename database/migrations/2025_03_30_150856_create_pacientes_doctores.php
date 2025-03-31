@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('historial_sesiones', function (Blueprint $table) {
+        Schema::create('pacientes_doctores', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->integer("paciente_id");
-            $table->integer("doctor_id")->nullable()->default(null);
-            $table->text("mensaje");
+            $table->softDeletes();
+            $table->integer('doctor_id');
+            $table->integer('paciente_id');
+
         });
     }
 
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('historial_sesiones');
+        Schema::dropIfExists('pacientes_doctores');
     }
 };

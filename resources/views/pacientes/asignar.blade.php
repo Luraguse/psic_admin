@@ -4,7 +4,7 @@
     @csrf
     <div class="row">
         <div class="col-md-6 col-sm-12">
-            <h6>Lista de pacientes sin asignar ({{$pacientes->count()}} sin asignar)</h6>
+            <h6>Lista de pacientes</h6>
             <select id="paciente_seleccionado" name="paciente_id" class="form-select" aria-label="Seleccionar un paciente">
                 <option disabled selected>Seleccionar un paciente</option>
                 @foreach($pacientes as $paciente)
@@ -37,16 +37,30 @@
                 <th>Acción</th>
             </tr>
         </thead>
-        @foreach($pacientes_asignados as $paciente_asignado)
+        @foreach($lista_pacientes as $paciente)
             <tr>
-                <td>{{$paciente_asignado->name}}</td>
-                <td>{{$paciente_asignado->email}}</td>
-                <td>{{$nombres_doctores[$paciente_asignado->doctor_id]}}</td>
+                <td>{{$paciente["paciente"]->name}}</td>
+                <td>{{$paciente["paciente"]->email}}</td>
+                <td colspan="2">
+                    <div class="row">
+                        @foreach($paciente["doctores"] as $doctor)
+                            <div class="col-sm-9 col-md-9">
+                                {{$doctor->name}}
+                            </div>
+                            <div class="col-sm-3 col-md-3">
+                                <form method="POST"
+                                      action="{{route("users.quitar_doctor", ["id"=>$paciente["paciente"]->id])}}">
+                                    @csrf
+
+                                    <a class="btn btn-danger btn-sm quitar_doctor mt-2" href="">Quitar</a>
+                                </form>
+                            </div>
+                        @endforeach
+                    </div>
+
+
+                </td>
                 <td>
-                    <form method="POST" action="{{route("users.quitar_doctor", ["id"=>$paciente_asignado->id])}}">
-                        @csrf
-                        <a class="btn btn-danger btn-sm quitar_doctor" href="">Quitar</a>
-                    </form>
                 </td>
             </tr>
         @endforeach

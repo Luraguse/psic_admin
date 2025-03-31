@@ -29,11 +29,8 @@
                         @else
                             @include("layout.tabs_paciente")
                         @endif
-                            <li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="/edit_user/{{Auth::user()->id}}">Usuario</a>
-                            </li>
-
                             <li class="nav-item" style="position: absolute; right: 20px;">
+                                <a class="btn btn-primary" aria-current="page" href="/edit_user/{{Auth::user()->id}}">Mi Usuario</a>
                                 <a class="btn btn-danger" aria-current="page" href="/logout">Logout</a>
                             </li>
                     @else

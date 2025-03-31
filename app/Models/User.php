@@ -53,6 +53,11 @@ class User extends Authenticatable
         return User::all()->count();
     }
 
+    public function doctores_paciente() {
+        // user has many users through PacienteDoctor
+
+    }
+
 //    public function pacientes(): BelongsTo {
 //        return $this->belongsTo("User", "id", "id");
 //    }
