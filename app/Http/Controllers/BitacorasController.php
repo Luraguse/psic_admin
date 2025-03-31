@@ -20,20 +20,12 @@ class BitacorasController extends Controller
 
     public function crear_entrada(Request $request, int $id)
     {
-        if ($id != Auth::id()) {
-            // Diferente doctor
-            $entrada = [
-                "doctor_id" => $id,
-                "comentador_id" => Auth::id(),
-                "texto" => $request->all()["texto"]
-            ];
-        } else {
-            $entrada = [
-                "doctor_id" => $id,
-                "comentador_id" => null,
-                "texto" => $request->all()["texto"]
-            ];
-        }
+        $entrada = [
+            "doctor_id" => Auth::id(),
+            "paciente_id" => $id,
+            "comentador_id" => null,
+            "texto" => $request->all()["texto"]
+        ];
         $request->validate(
             [
                 "texto" => "required|min:6|max:2255",
@@ -47,7 +39,7 @@ class BitacorasController extends Controller
 
         $new_entrada = Bitacora::create($entrada);
         $new_entrada->save();
-        return redirect()->route('bitacora.entradas', $id);
+        return redirect()->back()->with("success", "La entrada ha sido creada correctamente");
     }
 
     public function comentar_entrada(Request $request, int $id_entrada)

@@ -28,6 +28,12 @@
                 data-bs-target="#collapseHistorial" aria-expanded="false" aria-controls="collapseHistorial">
             Historial
         </button>
+        @if(Auth::user()->nivel=="admin" || Auth::user()->nivel=="doctor")
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#collapseBitacora" aria-expanded="false" aria-controls="collapseBitacora">
+                Bitacora
+            </button>
+        @endif
     </div>
     <div class="accordion-item col-md-12">
         <div class="row accordion-collapse collapse" id="collapseExpediente" data-bs-parent="#accordionUsuario">
@@ -90,6 +96,13 @@
             @include("pacientes.listas.historial")
         </div>
     </div>
+    @if(Auth::user()->nivel=="admin" || Auth::user()->nivel=="doctor")
+        <div class="accordion-item">
+            <div id="collapseBitacora" class="accordion-collapse collapse" data-bs-parent="#accordionUsuario">
+                @include("pacientes.listas.bitacora")
+            </div>
+        </div>
+    @endif
 </div>
 
 @include("layout.footer")

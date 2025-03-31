@@ -31,6 +31,30 @@
     @endforeach
     </tbody>
 </table>
+@if(count($lista_pacientes_sin_asignar) > 0)
+    <h4>Lista de pacientes sin asignar</h4>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Ver</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach($lista_pacientes_sin_asignar as $paciente)
+            <tr>
+                <td>{{ $paciente->name }}</td>
+                <td>{{ $paciente->email }}</td>
+                <td>
+                    <a type="button" class="btn btn-primary" href="/paciente/{{$paciente->id}}">Ver</a>
+                    <a type="button" class="btn btn-success" href="/edit_user/{{$paciente->id}}">Editar</a>
+                </td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+@endif
 @include("layout.footer")
 <script>
     $(window).on("load", function(){

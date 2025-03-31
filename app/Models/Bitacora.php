@@ -10,6 +10,7 @@ class Bitacora extends Model
         'comentador_id',
         'texto',
         'doctor_id',
+        "paciente_id",
     ];
 
     protected $table = 'bitacora';

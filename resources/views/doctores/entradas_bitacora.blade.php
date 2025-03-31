@@ -1,4 +1,3 @@
-@include("layout.header")
 @include("doctores.parts.bitacora_form")
 @if(count($bitacoras) == 0)
     <h4>No hay entradas en esta bitacora</h4>
@@ -30,7 +29,7 @@
 
 
 
-                <tr class="d-none comentar_entrada" id="form_comentario_{{$bitacora->id}}">
+                <tr class="d-none comentar_entrada" id="form_comentario_bitacora{{$bitacora->id}}">
                     <td></td>
                     <td></td>
                     <td>
@@ -40,7 +39,7 @@
                                 <input class="form-control input_comentario" data-id="{{$bitacora->id}}" type="text" id="entrada_{{$bitacora->id}}" name="texto" placeholder="Comentario" >
                             </div>
                             <div class="mb-3">
-                                <button id="submit_comentario_{{$bitacora->id}}" class="btn btn-primary btn-sm d-none" type="submit">Guardar comentario</button>
+                                <button id="submit_comentario_bitacora_{{$bitacora->id}}" class="btn btn-primary btn-sm d-none" type="submit">Guardar comentario</button>
                             </div>
                         </form>
                     </td>
@@ -61,4 +60,3 @@
         </tbody>
     </table>
 @endif
-@include("layout.footer")

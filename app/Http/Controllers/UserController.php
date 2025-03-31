@@ -14,6 +14,7 @@ use App\Models\RecursoUsuario;
 use App\Models\Tarea;
 use App\Models\TareaPaciente;
 use App\Models\PacienteDoctor;
+use App\Models\Bitacora;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
@@ -227,9 +228,11 @@ class UserController extends Controller
     public function pacientes()
     {
         $lista_pacientes = [];
+        $lista_pacientes_sin_asignar = [];
         if(Auth::user()->nivel == "admin") {
             $pacientes = PacienteDoctor::get()->pluck("paciente_id")->toArray();
             $pacientes_doctores = PacienteDoctor::with(["doctor", "paciente"])->whereIn("paciente_id", $pacientes)->get();
+            $lista_pacientes_sin_asignar = User::where("nivel", "paciente")->whereNotIn("id", $pacientes)->get();
             foreach($pacientes_doctores as $paciente) {
                 if(!array_key_exists($paciente->paciente_id, $lista_pacientes)) {
                     $lista_pacientes[$paciente->paciente_id] = ["paciente" => $paciente->paciente, "doctores" => [$paciente->doctor]];
@@ -251,7 +254,7 @@ class UserController extends Controller
         } else {
             return redirect('/')->with('error', 'No tienes permiso para acceder a este recurso');
         }
-        return view('users.pacientes', ["lista_pacientes" => $lista_pacientes]);
+        return view('users.pacientes', compact("lista_pacientes", "lista_pacientes_sin_asignar"));
     }
 
     public function doctores()
@@ -314,8 +317,9 @@ class UserController extends Controller
             $recursos_usuario = RecursoUsuario::with("recurso")->where("usuario_id", $paciente->paciente->id)->get()->sortByDesc("created_at");
             $tareas_paciente = TareaPaciente::with(["doctor", "tarea", "evaluacion"])->where("paciente_id", $paciente->paciente->id)->get()->sortByDesc("created_at");
             $mensajes = HistorialSesion::all()->where("paciente_id", "=", $paciente->paciente->id)->sortByDesc("created_at");
+            $bitacoras = Bitacora::all()->where("paciente_id", "=", $paciente->paciente->id)->sortByDesc("created_at");
             // ["paciente" => $paciente, "perfil" => $perfil, "diario_pensamientos" => $diario_pensamientos, "cuestionarios_paciente" => $cuestionarios_paciente, "paciente_id"=>$paciente->id, "recursos_usuario" => $recursos_usuario]
-            return view('users.perfilusuario', compact("paciente", "perfil", "diario_pensamientos", "cuestionarios_paciente", "recursos_usuario", "tareas_paciente", "mensajes"));
+            return view('users.perfilusuario', compact("paciente", "perfil", "diario_pensamientos", "cuestionarios_paciente", "recursos_usuario", "tareas_paciente", "mensajes", "bitacoras"));
         } else {
             return redirect('/')->with('error', 'El usuario no es paciente.');
         }
