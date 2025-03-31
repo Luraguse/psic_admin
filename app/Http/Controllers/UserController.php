@@ -89,12 +89,8 @@ class UserController extends Controller
         if (!Auth::check()) {
             return redirect('/login')->with('success', 'Se registró correctamente, por favor inicie sesión.');
         }
-        $current_user = Auth::user();
 
-        if ($user_created->nivel == "admin" || $user_created->nivel == "doctor") {
-            return redirect()->route("create_register")->with("success", "Usuario creado exitosamente");
-        }
-        return redirect()->route("users.paciente", ["id" => $user_created->id])->with("success", "Usuario creado exitosamente");
+        return redirect()->route("create_register")->with("success", "Usuario creado exitosamente");
     }
 
     public function showLoginForm()
