@@ -102,20 +102,19 @@ class UserController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
-
         if (Auth::attempt($credentials)) {
             if (Auth::user()->nivel == "paciente") {
                 $paciente_doctor = PacienteDoctor::where("paciente_id", "=", Auth::id())->get()->count();
                 if ($paciente_doctor == 0) {
                     Auth::logout();
-                    return redirect('/login')->with('error', 'Este usuario aún no ha sido aprobado');
+                    return redirect('/login')->with('error', 'Este usuario aún no tiene un doctor asignado');
                 }
 
             }
-            return redirect()->intended('/');
+            return redirect()->intended('/')->with("success", "Bienvenido");
         }
 
-        return redirect('/login')->with('error', 'Invalid credentials. Please try again.');
+        return redirect('/login')->with('error', 'Correo electrónico o contraseña incorrectos, intente nuevamente');
     }
 
     public function logout()
