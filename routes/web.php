@@ -78,6 +78,8 @@ Route::middleware(["auth"])->group(function () {
 
     // Bitacora doctor
     Route::get("/bitacora/{id}", [BitacorasController::class, "entradas"])->name('bitacora.entradas');
+    Route::get("/bitacoras", [BitacorasController::class, "bitacoras"])->name('bitacora.lista_doctores');
     Route::post("/bitacora_entrada/{id}", [BitacorasController::class, "crear_entrada"])->name('bitacora.crear_entrada');
     Route::post("/comentar_entrada/{id}", [BitacorasController::class, "comentar_entrada"])->name('bitacora.comentar_entrada');
+
 });

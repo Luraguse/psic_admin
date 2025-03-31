@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\Bitacora;
+use App\Models\User;
 use App\Models\ComentarioBitacora;
 
 use Illuminate\Http\Request;
@@ -69,5 +70,10 @@ class BitacorasController extends Controller
         );
         ComentarioBitacora::create($comentario);
         return redirect()->back()->with("success", "Comentario agregado");
+    }
+
+    public function bitacoras() {
+        $doctores = User::where("nivel", "doctor")->get();
+        return view('doctores.bitacoras', compact('doctores'));
     }
 }

@@ -293,7 +293,12 @@ class UserController extends Controller
 
     public function paciente(int $id)
     {
-        $paciente = PacienteDoctor::with(["paciente", "doctor"])->where("paciente_id", $id)->where("doctor_id", Auth::id())->first();
+        if(Auth::user()->nivel == "doctor") {
+            $paciente = PacienteDoctor::with(["paciente", "doctor"])->where("paciente_id", $id)->where("doctor_id", Auth::id())->first();
+        } elseif(Auth::user()->nivel == "admin") {
+            $paciente = PacienteDoctor::with(["paciente", "doctor"])->where("paciente_id", $id)->first();
+        }
+
         if ($paciente == null) {
             return redirect('/')->with('error', 'No se encontro el paciente.');
         }
