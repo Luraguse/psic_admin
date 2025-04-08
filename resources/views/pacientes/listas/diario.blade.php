@@ -45,12 +45,12 @@
                 </tr>
                 <tr class="d-none comentario_pensamiento" id="form_comentario_{{$diario->id}}">
                     <td></td>
-                    <td></td>
-                    <td>
+                    <td colspan="2">
                         <form method="POST"
                               action="{{ route('agregar_comentario_pensamiento', ["pensamiento_id"=>$diario->id]) }}">
                             @csrf
                             <div class="mb-3 col-md-12 col-sm-12">
+                                <label for="diario_{{$diario->id}}" class="form-label">Agregar comentario</label>
                                 <input class="form-control input_comentario" data-id="{{$diario->id}}" type="text"
                                        id="diario_{{$diario->id}}" name="texto" placeholder="Comentario">
                             </div>

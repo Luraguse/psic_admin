@@ -31,11 +31,11 @@
 
                 <tr class="d-none comentar_entrada" id="form_comentario_bitacora{{$bitacora->id}}">
                     <td></td>
-                    <td></td>
-                    <td>
+                    <td colspan="2">
                         <form method="POST" action="{{ route('bitacora.comentar_entrada', ["id"=>$bitacora->id]) }}">
                             @csrf
                             <div class="mb-3 col-md-12 col-sm-12">
+                                <label for="entrada_{{$bitacora->id}}" class="form-label">Agregar comentario</label>
                                 <input class="form-control input_comentario" data-id="{{$bitacora->id}}" type="text" id="entrada_{{$bitacora->id}}" name="texto" placeholder="Comentario" >
                             </div>
                             <div class="mb-3">
